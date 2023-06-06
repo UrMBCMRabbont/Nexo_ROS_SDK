@@ -52,3 +52,5 @@ json out list(/xtopic_vehicle/device_state_json)
         odmo_right_second :	(double m) speed of right rear wheel
 
 note: please use include/LIB_JSON/ArduinoJson.h,view https://arduinojson.org for details
+
+testing only
