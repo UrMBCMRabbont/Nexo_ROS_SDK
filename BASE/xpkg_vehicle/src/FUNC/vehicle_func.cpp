@@ -494,6 +494,8 @@ void VehicleFunc::DevMode(unsigned char mode,bool beep,bool brake,bool func)
  -----------------------------------------------------------------------------------------------------------------*/
 void VehicleFunc::DevMove(double speed_x, double speed_y, double rotate)
 {
+    // std::cout << "DevMove Called: " << speed_x << speed_y << rotate << std::endl;
+
     XstdData order;
     ROSInterface& ros_interface = ROSInterface::GetInterface();
     short data_speed_x = static_cast<short>(speed_x*1000);

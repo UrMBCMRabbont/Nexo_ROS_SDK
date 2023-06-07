@@ -24,6 +24,7 @@ bool LibFileIni::OpenFile(const char* path_name)
 
 
     m_fp = fopen(path_name, "r");
+    std::cout << path_name << std::endl;
     if (m_fp == nullptr)
     {
         ROS_ERROR("open ini file %s error!",path_name);
