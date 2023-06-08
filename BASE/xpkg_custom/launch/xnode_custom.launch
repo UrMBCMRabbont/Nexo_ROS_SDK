@@ -1,0 +1,7 @@
+<!--xnode_custom.launch-->
+<launch> 
+        <node name="xnode_custom" pkg="xpkg_custom" type="xnode_custom" output="screen" >
+	</node>
+        
+</launch>
+

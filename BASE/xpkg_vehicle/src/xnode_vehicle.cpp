@@ -47,10 +47,6 @@ void TimeCallback() {
             func_odom.ShowLoc();
             func_odom.PubDevOdom();
             if(!vehicle_func.IsOnline())sys_state = SYS_BASE_INIT;
-
-            if(sys_state == SYS_READY){
-                sys_state = BEGINNER_STRAIGHT;
-            }
             break;
         case BEGINNER_STRAIGHT:
             vehicle_func.DevMove(0.5,0.5,0.0);
