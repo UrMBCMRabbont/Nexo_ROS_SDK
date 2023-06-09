@@ -104,7 +104,8 @@ class ROSInterface
     inline void ClearVelMsg() { m_list_vel.clear(); }
 
     //add sub callback below////////////////////////////////////
-    void CustomXstdCallback(const geometry_msgs::Twist& cmd_vel);
+    // void CustomXstdCallback(const geometry_msgs::Twist& cmd_vel);
+    void CustomXstdCallback(const xpkg_msgs::XmsgCommData& data);
 
   public:
     //add param Variable below///////////////////////////////
