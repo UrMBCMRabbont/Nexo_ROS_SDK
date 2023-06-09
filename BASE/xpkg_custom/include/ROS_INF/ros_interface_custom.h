@@ -91,7 +91,8 @@ class ROSInterface
   *********************************************************/
   public:
     //add pub function below////////////////////////////////
-    void PubCustomXstd(const XstdData& data);
+    // void PubCustomXstd(const XstdData& data);
+    void PubCustomXstd(const geometry_msgs::Twist& cmd_vel);
 
     //add sub function below////////////////////////////////
     inline bool GetComXstdFlag() { return m_f_com_xstd; }
@@ -104,8 +105,6 @@ class ROSInterface
     inline void ClearVelMsg() { m_list_vel.clear(); }
 
     //add sub callback below////////////////////////////////////
-    // void CustomXstdCallback(const geometry_msgs::Twist& cmd_vel);
-    void CustomXstdCallback(const xpkg_msgs::XmsgCommData& data);
 
   public:
     //add param Variable below///////////////////////////////

@@ -108,7 +108,7 @@ class ROSInterface
     //add sub callback below////////////////////////////////////
     void ComXstdCallback(const xpkg_msgs::XmsgCommData& data);
     void VelCallback(const geometry_msgs::Twist& cmd_vel);
-
+    void CustomXstdCallback(const geometry_msgs::Twist& cmd_vel);
   public:
     //add param Variable below///////////////////////////////
     std::string m_ini_path;
@@ -135,6 +135,7 @@ class ROSInterface
     //add sub Variable below/////////////////////////////////
     ros::Subscriber sub_vel;
     ros::Subscriber sub_com_xstd;
+    ros::Subscriber sub_custom_xstd;
 
     //add nomal Variable below///////////////////////////////
     vector<XstdData> m_list_com_xstd;

@@ -103,36 +103,15 @@ void ROSInterface::SubscriptionInit()
   /* add more later */
 }
 /*------------------------------------------------------------------------------------------------------------------
- * name: PubComXstd
+ * name: PubCustomXstd
  -----------------------------------------------------------------------------------------------------------------*/
-void ROSInterface::PubCustomXstd(const XstdData& data)
+void ROSInterface::PubCustomXstd(const geometry_msgs::Twist& cmd_vel)
 {
-    xpkg_msgs::XmsgCommData data_com;
-    data_com.len = data.len;
-    data_com.id_c = data.id_c;
-    data_com.id_t = data.id_t;
-    data_com.id_n = data.id_n;
-    data_com.id_f = data.id_f;
-    memcpy(&data_com.data[0],&data.data[0],data.len);
-    data_com.time = ros::Time::now();
-    pub_custom_xstd.publish(data_com);
+    pub_custom_xstd.publish(cmd_vel);
 }
 /*------------------------------------------------------------------------------------------------------------------
  * name: sub callback
  -----------------------------------------------------------------------------------------------------------------*/
-void ROSInterface::CustomXstdCallback(const xpkg_msgs::XmsgCommData& data)
-{
-  m_f_com_xstd = true;
-  XstdData data_com;
-  data_com.len = data.len;
-  data_com.id_c = data.id_c;
-  data_com.id_t = data.id_t;
-  data_com.id_n = data.id_n;
-  data_com.id_f = data.id_f;
-  memcpy(&data_com.data[0],&data.data[0],data.len);
-  data_com.time = data.time.toSec();
-  m_list_com_xstd.push_back(data_com);
-  if(m_list_com_xstd.size()>500)m_list_com_xstd.clear();
-}
+
 
 }//namespace HEXROS
