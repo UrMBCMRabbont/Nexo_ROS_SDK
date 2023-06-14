@@ -100,7 +100,7 @@ void ROSInterface::PublisherInit()
  -----------------------------------------------------------------------------------------------------------------*/
 void ROSInterface::SubscriptionInit()
 { 
-  /* add more later */
+  sub_custom_odom = m_node_local_ptr->subscribe("/odom", 1000, &ROSInterface::PIDCustomCallback, this);
 }
 /*------------------------------------------------------------------------------------------------------------------
  * name: PubCustomXstd
@@ -112,6 +112,32 @@ void ROSInterface::PubCustomXstd(const geometry_msgs::Twist& cmd_vel)
 /*------------------------------------------------------------------------------------------------------------------
  * name: sub callback
  -----------------------------------------------------------------------------------------------------------------*/
+PID ROSInterface::pid_gain(nav_msgs::Odometry odom, nav_msgs::Odometry target){
+  PID gain;
+  gain.P.x = 0;
+  gain.P.y = 10*(odom.pose.pose.position.y - 0.0);
+  gain.P.w = 10*(odom.pose.pose.orientation.w - 1.0);
 
+  std::cout << "gain.P.y: " << gain.P.y << std::endl;
+  std::cout << "gain.P.w: " << gain.P.w << std::endl;
+  return gain;
+}
+void ROSInterface::PIDCustomCallback(const nav_msgs::Odometry& odom)
+{
+  std::cout << "Received Odom info" << std::endl;
+  // odom.header.stamp = current_time;
+  // odom.header.frame_id = "odom";
+  // odom.child_frame_id = "base_link";
+  GAIN = pid_gain(odom, odom);
+  // std::cout << odom.pose.pose.position.x << std::endl;
+  // std::cout << odom.pose.pose.position.y << std::endl;
+  // std::cout << odom.pose.pose.position.z << std::endl;
+  // std::cout << odom.pose.pose.orientation << std::endl;
+  // std::cout << odom.twist.twist.angular.z << std::endl;
+
+  // memcpy(&data_com.data[0],&data.data[0],data.len);
+  // m_data_com_xstd.push_back(data_com);
+  // if(m_data_com_xstd.size()>500)m_data_com_xstd.clear();
+}
 
 }//namespace HEXROS

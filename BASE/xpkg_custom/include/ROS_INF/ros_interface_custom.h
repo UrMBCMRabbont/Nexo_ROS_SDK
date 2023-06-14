@@ -50,6 +50,19 @@ struct VelData
   double ang_y;
   double ang_z;
 };
+
+struct XYW
+{
+  double x;
+  double y;
+  double w;
+};
+struct PID
+{
+  XYW P;
+  XYW I;
+  XYW D;
+};
 ////////////////////////////////////////////////////////////
 class ROSInterface
 {
@@ -95,6 +108,9 @@ class ROSInterface
     void PubCustomXstd(const geometry_msgs::Twist& cmd_vel);
 
     //add sub function below////////////////////////////////
+    void PIDCustomCallback(const nav_msgs::Odometry& odom);
+
+    PID pid_gain(nav_msgs::Odometry odom, nav_msgs::Odometry target);
     inline bool GetComXstdFlag() { return m_f_com_xstd; }
     inline void ResetComXstdFlag() { m_f_com_xstd = false; }
     inline bool GetVelFlag() { return m_f_vel; }
@@ -103,6 +119,7 @@ class ROSInterface
     inline vector<VelData> GetVelMsg() { return m_list_vel; }
     inline void ClearComXstdMsg() { m_list_com_xstd.clear(); }
     inline void ClearVelMsg() { m_list_vel.clear(); }
+    inline PID ReturnPID() { return GAIN; }
 
     //add sub callback below////////////////////////////////////
 
@@ -122,12 +139,13 @@ class ROSInterface
     //add sub flag below/////////////////////////////////////
     bool m_f_com_xstd;
     bool m_f_vel;
+    PID GAIN;
 
     //add pub Variable below/////////////////////////////////
     ros::Publisher pub_custom_xstd;
 
     //add sub Variable below/////////////////////////////////
-    
+    ros::Subscriber sub_custom_odom;
 
     //add nomal Variable below///////////////////////////////
     vector<XstdData> m_list_com_xstd;

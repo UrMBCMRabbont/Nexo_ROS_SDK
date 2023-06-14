@@ -82,7 +82,7 @@ void ROSInterface::ParameterInit()
   m_node_local_ptr->getParam("ini_path", m_ini_path);
   m_node_local_ptr->param("show_loc", m_show_loc, false);
   m_node_local_ptr->param("show_path", m_show_path, true);
-  m_node_local_ptr->param("calc_speed", m_calc_speed, false);
+  m_node_local_ptr->param("calc_speed", m_calc_speed, true);
   m_node_local_ptr->param("mode_lock", m_mode_lock, true);
   m_node_local_ptr->param("rate_x", m_rate_x, 1.0);
   m_node_local_ptr->param("rate_y", m_rate_y, 1.0);
@@ -96,7 +96,7 @@ void ROSInterface::VariableInit()
 {
   m_show_loc = false;
   m_show_path = false;
-  m_calc_speed = false;
+  m_calc_speed = true;
   m_mode_lock = true;
   m_rate_x = 1.0;
   m_rate_y = 1.0;
@@ -242,12 +242,12 @@ void ROSInterface::CustomXstdCallback(const geometry_msgs::Twist& cmd_vel)
   m_list_vel.push_back(data_vel);
   if(m_list_vel.size()>500)m_list_vel.clear();
 
-  std::cout << "Receive line_x: " << data_vel.line_x << std::endl;
-  std::cout << "Receive line_y: " << data_vel.line_y << std::endl;
-  std::cout << "Receive line_z: " << data_vel.line_z << std::endl;
-  std::cout << "Receive ang_x: " << data_vel.ang_x << std::endl;
-  std::cout << "Receive ang_y: " << data_vel.ang_y << std::endl;
-  std::cout << "Receive ang_z: " << data_vel.ang_z << std::endl;
+  // std::cout << "Receive line_x: " << data_vel.line_x << std::endl;
+  // std::cout << "Receive line_y: " << data_vel.line_y << std::endl;
+  // std::cout << "Receive line_z: " << data_vel.line_z << std::endl;
+  // std::cout << "Receive ang_x: " << data_vel.ang_x << std::endl;
+  // std::cout << "Receive ang_y: " << data_vel.ang_y << std::endl;
+  // std::cout << "Receive ang_z: " << data_vel.ang_z << std::endl;
 }
 
 }//namespace HEXROS
