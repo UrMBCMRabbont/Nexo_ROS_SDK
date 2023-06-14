@@ -2,6 +2,10 @@
 #ifndef ROS_INTERFACE_H
 #define ROS_INTERFACE_H
 
+#define _Kp 90.0
+#define _Ki 0.0
+#define _Kd 1.0
+
 #include <string>
 #include <vector>
 #include <memory>
@@ -51,6 +55,14 @@ struct VelData
   double ang_z;
 };
 
+struct SPEED
+{
+  double x;
+  double y;
+  double r;
+  double s_time;
+};
+
 struct XYW
 {
   double x;
@@ -62,6 +74,7 @@ struct PID
   XYW P;
   XYW I;
   XYW D;
+  XYW value;
 };
 ////////////////////////////////////////////////////////////
 class ROSInterface
@@ -109,8 +122,9 @@ class ROSInterface
 
     //add sub function below////////////////////////////////
     void PIDCustomCallback(const nav_msgs::Odometry& odom);
+    void CustomXstdCallback(const xpkg_msgs::XmsgCommData& data);
 
-    PID pid_gain(nav_msgs::Odometry odom, nav_msgs::Odometry target);
+    PID pid_control(nav_msgs::Odometry odom, nav_msgs::Odometry target, SPEED s_speed);
     inline bool GetComXstdFlag() { return m_f_com_xstd; }
     inline void ResetComXstdFlag() { m_f_com_xstd = false; }
     inline bool GetVelFlag() { return m_f_vel; }
@@ -146,10 +160,11 @@ class ROSInterface
 
     //add sub Variable below/////////////////////////////////
     ros::Subscriber sub_custom_odom;
+    ros::Subscriber sub_custom_xstd;
 
     //add nomal Variable below///////////////////////////////
     vector<XstdData> m_list_com_xstd;
-    vector<VelData> m_list_vel;    
+    vector<VelData> m_list_vel; 
   
 };
 

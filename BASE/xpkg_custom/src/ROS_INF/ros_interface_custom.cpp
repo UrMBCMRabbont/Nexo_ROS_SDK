@@ -100,6 +100,7 @@ void ROSInterface::PublisherInit()
  -----------------------------------------------------------------------------------------------------------------*/
 void ROSInterface::SubscriptionInit()
 { 
+  sub_custom_xstd = m_node_local_ptr->subscribe("/xtopic_comm/com_recv_xstd_vehicle", 1000, &ROSInterface::CustomXstdCallback, this);
   sub_custom_odom = m_node_local_ptr->subscribe("/odom", 1000, &ROSInterface::PIDCustomCallback, this);
 }
 /*------------------------------------------------------------------------------------------------------------------
@@ -112,28 +113,57 @@ void ROSInterface::PubCustomXstd(const geometry_msgs::Twist& cmd_vel)
 /*------------------------------------------------------------------------------------------------------------------
  * name: sub callback
  -----------------------------------------------------------------------------------------------------------------*/
-PID ROSInterface::pid_gain(nav_msgs::Odometry odom, nav_msgs::Odometry target){
-  PID gain;
-  gain.P.x = 0;
-  gain.P.y = 10*(odom.pose.pose.position.y - 0.0);
-  gain.P.w = 10*(odom.pose.pose.orientation.w - 1.0);
+void ROSInterface::CustomXstdCallback(const xpkg_msgs::XmsgCommData& data){
+  m_f_com_xstd = true;
+  XstdData data_com;
+  data_com.len = data.len;
+  memcpy(&data_com.data[0],&data.data[0],data.len);
+  data_com.time = data.time.toSec();
+  m_list_com_xstd.push_back(data_com);
+  if(m_list_com_xstd.size()>500)m_list_com_xstd.clear();
+} 
 
-  std::cout << "gain.P.y: " << gain.P.y << std::endl;
-  std::cout << "gain.P.w: " << gain.P.w << std::endl;
+PID ROSInterface::pid_control(nav_msgs::Odometry odom, nav_msgs::Odometry target, SPEED s_speed){
+  ROSInterface& ros_interface = ROSInterface::GetInterface();
+  double _dt = ros_interface.GetTime().toSec() - s_speed.s_time;
+  std::cout << "speed_time: " <<  _dt << std::endl;
+  PID gain;
+  gain.P.y = _Kp*(0.0 - odom.pose.pose.position.y);
+  gain.I.y = _Ki*(0.0 - odom.pose.pose.position.y)*_dt;
+  gain.D.y = _Kd*s_speed.x;
+  gain.value.y = gain.P.y + gain.I.y + gain.D.y;
+
+  std::cout << "\nP: "<< gain.P.y << "\nI: "<< gain.I.y << "\nD: "<< gain.D.y << std::endl;
   return gain;
 }
+
 void ROSInterface::PIDCustomCallback(const nav_msgs::Odometry& odom)
 {
   std::cout << "Received Odom info" << std::endl;
-  // odom.header.stamp = current_time;
-  // odom.header.frame_id = "odom";
-  // odom.child_frame_id = "base_link";
-  GAIN = pid_gain(odom, odom);
-  // std::cout << odom.pose.pose.position.x << std::endl;
-  // std::cout << odom.pose.pose.position.y << std::endl;
-  // std::cout << odom.pose.pose.position.z << std::endl;
-  // std::cout << odom.pose.pose.orientation << std::endl;
-  // std::cout << odom.twist.twist.angular.z << std::endl;
+
+  ROSInterface& ros_interface = ROSInterface::GetInterface();
+  vector<XstdData> data_com_list = ros_interface.GetComXstdMsg();
+  XstdData data_recv;
+  short temp;
+  SPEED s_speed;
+  for(unsigned long i = 0; i < data_com_list.size(); i++)
+  {
+      data_recv = data_com_list.at(i);
+      if(data_recv.id_c != 0x01) continue;
+      switch(data_recv.id_f)
+      {
+          /************************motion status***************************************/
+          case 0xB2:
+              memcpy(&temp,&data_recv.data[0],2);
+              s_speed.x = static_cast<double>(temp)/1000;
+              memcpy(&temp,&data_recv.data[2],2);
+              s_speed.y = static_cast<double>(temp)/1000;
+              memcpy(&temp,&data_recv.data[4],2);
+              s_speed.r = static_cast<double>(temp)/1000;
+              s_speed.s_time = data_recv.time;
+      }
+  }
+  GAIN = pid_control(odom, odom, s_speed);
 
   // memcpy(&data_com.data[0],&data.data[0],data.len);
   // m_data_com_xstd.push_back(data_com);

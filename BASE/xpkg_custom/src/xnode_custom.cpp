@@ -10,12 +10,8 @@ void TimeCallback() {
     ROSInterface& ros_interface = ROSInterface::GetInterface();
 
     geometry_msgs::Twist cmd_vel;
-    cmd_vel.linear.x = -0.3;
-    cmd_vel.linear.y = 0.0;
-    cmd_vel.linear.z = 0.0;
-    cmd_vel.angular.x = 0.0;
-    cmd_vel.angular.y = 0.0;
-    cmd_vel.angular.z = ros_interface.ReturnPID().P.y;
+    cmd_vel.linear.x = 0.5;
+    cmd_vel.angular.z = ros_interface.ReturnPID().value.y;  // -/+ right/left
     ros_interface.PubCustomXstd(cmd_vel);
 
 }
