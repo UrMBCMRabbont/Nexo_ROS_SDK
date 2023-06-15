@@ -1,5 +1,6 @@
 #include <ros_interface_custom.h>
 
+
 namespace XROS_VEHICLE
 {
 void ROSInterface::BaseInit(int argc, char* argv[], std::string node_name,double period, void (*handle)())
@@ -117,6 +118,10 @@ void ROSInterface::CustomXstdCallback(const xpkg_msgs::XmsgCommData& data){
   m_f_com_xstd = true;
   XstdData data_com;
   data_com.len = data.len;
+  data_com.id_c = data.id_c;
+  data_com.id_t = data.id_t;
+  data_com.id_n = data.id_n;
+  data_com.id_f = data.id_f;
   memcpy(&data_com.data[0],&data.data[0],data.len);
   data_com.time = data.time.toSec();
   m_list_com_xstd.push_back(data_com);
@@ -124,9 +129,11 @@ void ROSInterface::CustomXstdCallback(const xpkg_msgs::XmsgCommData& data){
 } 
 
 PID ROSInterface::pid_control(nav_msgs::Odometry odom, nav_msgs::Odometry target, SPEED s_speed){
-  ROSInterface& ros_interface = ROSInterface::GetInterface();
-  double _dt = ros_interface.GetTime().toSec() - s_speed.s_time;
-  std::cout << "speed_time: " <<  _dt << std::endl;
+  // ROSInterface& ros_interface = ROSInterface::GetInterface();
+  double _dt = m_list_speed[m_list_speed.size()-1].s_time - m_list_speed[m_list_speed.size()-2].s_time;
+  std::cout << "speed_time: " << _dt << std::endl;
+  std::cout << "s_speed.x: " << s_speed.x << std::endl;
+  std::cout << "PID changed 2" << std::endl;
   PID gain;
   gain.P.y = _Kp*(0.0 - odom.pose.pose.position.y);
   gain.I.y = _Ki*(0.0 - odom.pose.pose.position.y)*_dt;
@@ -139,13 +146,15 @@ PID ROSInterface::pid_control(nav_msgs::Odometry odom, nav_msgs::Odometry target
 
 void ROSInterface::PIDCustomCallback(const nav_msgs::Odometry& odom)
 {
+  ROSInterface& ros_interface = ROSInterface::GetInterface();
+  if(ros_interface.GetComXstdFlag() == 0)return;
   std::cout << "Received Odom info" << std::endl;
 
-  ROSInterface& ros_interface = ROSInterface::GetInterface();
   vector<XstdData> data_com_list = ros_interface.GetComXstdMsg();
   XstdData data_recv;
   short temp;
   SPEED s_speed;
+  std::cout << m_list_speed.size() << std::endl;
   for(unsigned long i = 0; i < data_com_list.size(); i++)
   {
       data_recv = data_com_list.at(i);
@@ -161,13 +170,20 @@ void ROSInterface::PIDCustomCallback(const nav_msgs::Odometry& odom)
               memcpy(&temp,&data_recv.data[4],2);
               s_speed.r = static_cast<double>(temp)/1000;
               s_speed.s_time = data_recv.time;
+
+              m_list_speed.push_back(s_speed);
+              if(m_list_speed.size()>50)
+              {
+                SPEED temp = m_list_speed[m_list_speed.size()-2];
+                m_list_speed.clear();
+                m_list_speed.push_back(temp);
+              }
+              if(m_list_speed.size() >=2) GAIN = pid_control(odom, odom, s_speed);
+              break;
       }
   }
-  GAIN = pid_control(odom, odom, s_speed);
-
-  // memcpy(&data_com.data[0],&data.data[0],data.len);
-  // m_data_com_xstd.push_back(data_com);
-  // if(m_data_com_xstd.size()>500)m_data_com_xstd.clear();
+  ros_interface.ResetComXstdFlag();
+  ros_interface.ClearComXstdMsg();
 }
 
 }//namespace HEXROS

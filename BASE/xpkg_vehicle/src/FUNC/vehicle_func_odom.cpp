@@ -29,6 +29,7 @@ void VehicleFuncOdom::BasiInit(unsigned char type)
     m_model = lib_file_ini.GetKeyValue(lib_file_ini.ToHexStr(type).c_str(),"model");
     if(ros_interface.m_calc_speed)calc_mode = "speed";
     else calc_mode = "odom";
+    std::cout << ros_interface.m_calc_speed << std::endl;
     ros_interface.ROSLog(LogLevel::kInfo,"\033[1;34m xnode_vehicle: cal_mode = %s / model = %s \033[0m",
                          calc_mode.c_str(),m_model.c_str());
     ros_interface.ROSLog(LogLevel::kInfo,"\033[1;34m xnode_vehicle: track_width = %.3fm / wheel_base = %.3fm \033[0m",
